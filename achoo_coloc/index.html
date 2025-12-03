@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Eye Tracking System</title>
+    <title>Eye Speaker Console</title>
+    <link rel="icon" href="data:,">
     <style>
         * {
             margin: 0;
@@ -12,46 +13,142 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
             min-height: 100vh;
             overflow-x: hidden;
+            position: relative;
         }
         
-        .header {
-            text-align: center;
-            padding: 20px 0;
-            background: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(10px);
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: #ff9f22d2;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 300;
-            margin-bottom: 10px;
-        }
-        
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.8;
+        .logo-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: 0.5px;
         }
         
         .main-container {
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 20px;
-            padding: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            padding-top: 100px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .feature-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #000000;
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 40px;
+            text-decoration: none;
+            transition: transform 0.2s ease;
+        }
+        
+        .feature-tag:hover {
+            transform: translateY(-2px);
+        }
+        
+        .feature-tag .arrow {
+            font-size: 16px;
+        }
+        
+        .main-title {
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1.1;
+            text-align: center;
+            color: #ff9f22d2;
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+        }
+        
+        .main-subtitle {
+            font-size: 1.25rem;
+            font-weight: 400;
+            line-height: 1.6;
+            text-align: center;
+            color: #666666;
+            max-width: 600px;
+            margin: 0 auto 48px;
+        }
+        
+        .cta-button {
+            background: #ff9f22d2;
+            color: #ffffff;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            margin-left: auto;
+        }
+        
+        .cta-button:hover:not(:disabled) {
+            background: #333333;
+            transform: translateY(-2px);
+        }
+        
+        .cta-button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        .cta-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .cta-button .arrow {
+            font-size: 18px;
+        }
+        
+        .start-button-container.hidden {
+            display: none;
         }
         
         .video-section {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .video-section.active {
+            display: flex;
         }
         
         .video-container {
@@ -61,13 +158,136 @@
             margin-bottom: 20px;
         }
         
+        .eye-status-panel {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 200px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+        }
+        
+        .eye-status-panel h3 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            border-bottom: 2px solid #ff9f22d2;
+            padding-bottom: 8px;
+        }
+        
+        .eye-status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 8px 0;
+        }
+        
+        .eye-ratio-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 4px 0;
+            font-size: 12px;
+        }
+        
+        .eye-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #666666;
+        }
+        
+        .eye-status {
+            font-size: 16px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 6px;
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        .eye-status.open {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .eye-status.closed {
+            background: #f44336;
+            color: white;
+        }
+        
+        .eye-ratio {
+            font-size: 12px;
+            font-weight: 500;
+            color: #333333;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .console-section {
+            margin-bottom: 15px;
+        }
+        
+        .console-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ff9f22;
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(255, 159, 34, 0.3);
+        }
+        
+        .console-section-content {
+            background: #1a1a1a;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            padding: 8px;
+            border-radius: 4px;
+            min-height: 20px;
+            border: 1px solid #333333;
+        }
+        
+        .console-output {
+            background: #1a1a1a;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            padding: 10px;
+            border-radius: 6px;
+            min-height: 40px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border: 1px solid #333333;
+        }
+        
         #video {
             width: 100%;
             max-width: 640px;
             height: auto;
-            border-radius: 10px;
+            border-radius: 20px;
             transform: scaleX(-1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        #video.fullscreen-calibration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            max-width: 100vw;
+            max-height: 100vh;
+            object-fit: cover;
+            border-radius: 0;
+            z-index: 997;
         }
         
         #canvas {
@@ -76,7 +296,22 @@
             left: 50%;
             transform: translateX(-50%) scaleX(-1);
             pointer-events: none;
-            border-radius: 10px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        #canvas.fullscreen-calibration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            max-width: 100vw;
+            max-height: 100vh;
+            object-fit: cover;
+            border-radius: 0;
+            transform: scaleX(-1);
+            z-index: 998;
         }
         
         .controls {
@@ -86,110 +321,37 @@
             justify-content: center;
         }
         
-        button {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border: none;
+        .controls button {
+            background: #f5f5f5;
+            color: #1a1a1a;
+            border: 1px solid #e0e0e0;
             padding: 12px 24px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        }
-        
-        button:disabled {
-            background: rgba(255, 255, 255, 0.2);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .info-panel {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            height: fit-content;
-        }
-        
-        .info-section {
-            margin-bottom: 25px;
-        }
-        
-        .info-section h3 {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            color: #fff;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
-            padding-bottom: 8px;
-        }
-        
-        .status {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 12px;
             border-radius: 8px;
             font-size: 14px;
-            border-left: 4px solid #667eea;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
         
-        .accuracy-container {
-            margin: 15px 0;
+        .controls button:hover:not(:disabled) {
+            background: #e8e8e8;
+            border-color: #d0d0d0;
         }
         
-        .accuracy-meter {
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 8px 0;
+        .controls button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         
-        .accuracy-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #0abde3);
-            transition: width 0.5s ease;
-            border-radius: 4px;
-        }
-        
-        .accuracy-text {
-            text-align: center;
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-        
-        .data-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        
-        .data-item {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-        }
-        
-        .data-label {
-            opacity: 0.8;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .data-value {
-            font-weight: 600;
-            font-size: 14px;
-            margin-top: 2px;
+        #faceGuideBtn {
+            background: rgba(255, 255, 255, 0.95) !important;
+            color: #ff9f22d2 !important;
+            border: 2px solid #ff9f22d2 !important;
+            font-weight: 600 !important;
+            font-size: 16px !important;
+            padding: 14px 28px !important;
+            pointer-events: none !important;
+            box-shadow: 0 4px 12px rgba(255, 159, 34, 0.2) !important;
         }
         
         .gaze-point {
@@ -271,20 +433,23 @@
             100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
         
-        @media (max-width: 1200px) {
-            .main-container {
-                grid-template-columns: 1fr;
-                gap: 20px;
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2.5rem;
             }
             
-            .info-panel {
-                order: -1;
+            .main-subtitle {
+                font-size: 1.1rem;
             }
-        }
-        
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
+            
+            .feature-tag {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+            
+            .cta-button {
+                padding: 14px 28px;
+                font-size: 14px;
             }
             
             .controls {
@@ -292,100 +457,77 @@
                 align-items: center;
             }
             
-            button {
+            .controls button {
                 width: 200px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🎯 Advanced Eye Tracking System</h1>
-        <p>Real-time gaze tracking using MediaPipe & TensorFlow.js</p>
+    <div class="top-bar">
+        <div class="logo-text">ESC</div>
     </div>
     
-    <div class="main-container">
-        <div class="video-section">
+    <div class="main-container" id="mainContainer">
+        <div class="start-button-container" id="startButtonContainer">
+            
+            <h1 class="main-title">
+                Eye Speaker Console <br>
+            </h1>
+            
+            <p class="main-subtitle">
+                시선만으로 소통하는 경험을 제공합니다.
+            </p>
+            
+            <button id="startBtn" class="cta-button">
+                카메라 켜기
+                <span class="arrow">→</span>
+            </button>
+        </div>
+        
+        <div class="video-section" id="videoSection">
             <div class="video-container">
                 <video id="video" autoplay muted></video>
                 <canvas id="canvas" width="640" height="480"></canvas>
             </div>
             
+            <div class="eye-status-panel" id="eyeStatusPanel" style="display: none;">
+                <h3>눈 상태</h3>
+                
+                <div class="console-section">
+                    <div class="console-section-title">왼쪽눈 상태</div>
+                    <div class="console-section-content" id="leftEyeStatusConsole">-</div>
+                </div>
+                
+                <div class="console-section">
+                    <div class="console-section-title">오른쪽눈 상태</div>
+                    <div class="console-section-content" id="rightEyeStatusConsole">-</div>
+                </div>
+                
+                <div class="console-section">
+                    <div class="console-section-title">양쪽 눈의 임계값</div>
+                    <div class="console-section-content" id="eyeRatioConsole">-</div>
+                </div>
+                
+                <div class="console-section">
+                    <div class="console-section-title">콘솔창</div>
+                    <div class="console-output" id="consoleOutput">
+                        콘솔 출력 영역
+                    </div>
+                </div>
+            </div>
+            
             <div class="controls">
-                <button id="startBtn">🚀 Start Camera</button>
-                <button id="calibrateBtn" disabled>🎯 Calibrate</button>
-                <button id="fullscreenBtn" disabled>🖥️ Fullscreen</button>
-                <button id="toggleGazeBtn" disabled>👁️ Toggle Gaze</button>
-                <button id="resetBtn" disabled>🔄 Reset</button>
-            </div>
-        </div>
-        
-        <div class="info-panel">
-            <div class="info-section">
-                <h3>📊 System Status</h3>
-                <div class="status" id="status">Initializing system...</div>
-            </div>
-            
-            <div class="info-section">
-                <h3>🎯 Accuracy</h3>
-                <div class="accuracy-container">
-                    <div class="accuracy-meter">
-                        <div class="accuracy-fill" id="accuracyFill" style="width: 0%"></div>
-                    </div>
-                    <div class="accuracy-text" id="accuracyText">0%</div>
-                </div>
-            </div>
-            
-            <div class="info-section">
-                <h3>📍 Gaze Coordinates</h3>
-                <div class="data-grid">
-                    <div class="data-item">
-                        <div class="data-label">X Position</div>
-                        <div class="data-value"><span id="gazeX">0</span>px</div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">Y Position</div>
-                        <div class="data-value"><span id="gazeY">0</span>px</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="info-section">
-                <h3>👁️ Eye Status</h3>
-                <div class="data-grid">
-                    <div class="data-item">
-                        <div class="data-label">Left Eye</div>
-                        <div class="data-value" id="leftEye">Not detected</div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">Right Eye</div>
-                        <div class="data-value" id="rightEye">Not detected</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="info-section">
-                <h3>🔄 Head Pose</h3>
-                <div class="data-grid">
-                    <div class="data-item">
-                        <div class="data-label">Pitch</div>
-                        <div class="data-value" id="headPitch">0°</div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">Yaw</div>
-                        <div class="data-value" id="headYaw">0°</div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">Roll</div>
-                        <div class="data-value" id="headRoll">0°</div>
-                    </div>
-                </div>
+                <button id="faceGuideBtn" style="display: none;">얼굴을 움직이지 마세요!</button>
+                <button id="calibrateBtn" disabled style="display: none;">🎯 사용자 설정</button>
+                <button id="toggleGazeBtn" disabled style="display: none;">👁️ 시선 추적</button>
             </div>
         </div>
     </div>
     
     <div id="gazePoint" class="gaze-point" style="display: none;"></div>
     
+    <!-- MediaPipe 라이브러리 로드 -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
