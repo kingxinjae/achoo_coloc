@@ -58,7 +58,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 # CORS 미들웨어 설정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],  # React 개발 서버
+    allow_origins=["*"],  # 모든 origin 허용 (개발용)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

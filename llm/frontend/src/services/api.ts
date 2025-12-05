@@ -148,6 +148,21 @@ export const recommendWords = async (
   }
 };
 
+export const recommendDiverseWords = async (
+  context: string[] = [],
+  excludeWords: string[] = []
+): Promise<string[]> => {
+  try {
+    const response = await apiClient.post<RecommendResponse>('/api/recommend-diverse', {
+      context,
+      exclude_words: excludeWords,
+    });
+    return response.data.recommendations;
+  } catch (error) {
+    throw handleAPIError(error);
+  }
+};
+
 export const generateSentence = async (words: string[]): Promise<string> => {
   try {
     const response = await apiClient.post<GenerateResponse>('/api/generate', {

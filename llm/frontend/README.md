@@ -1,73 +1,60 @@
-# React + TypeScript + Vite
+# Eye Word TTS Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+시선 추적 기반 단어 선택 TTS 시스템 - React + TypeScript + Vite
 
-Currently, two official plugins are available:
+## 요구사항
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Node.js 18+
+- 웹캠 (시선 추적용)
+- 백엔드 서버 (localhost:8000)
 
-## React Compiler
+## 설치
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 실행
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+앱: http://localhost:5173
+
+## 사용법
+
+1. "카메라 시작" 클릭
+2. 12포인트 캘리브레이션 완료 (초록색 점 응시)
+3. 시선으로 4개 영역 중 하나 선택
+4. **왼쪽 눈 윙크 (0.5초)** → 단어 선택
+5. **오른쪽 눈 윙크** → 문장 생성 + TTS 재생
+
+## 프로젝트 구조
+
+```
+frontend/
+├── src/
+│   ├── App.tsx              # 메인 앱
+│   ├── App.css              # 글로벌 스타일
+│   ├── components/
+│   │   ├── StartScreen.tsx      # 시작 화면
+│   │   ├── CalibrationScreen.tsx # 캘리브레이션
+│   │   └── WordSelectionScreen.tsx # 단어 선택
+│   ├── hooks/
+│   │   └── useEyeTracking.ts    # 시선 추적 훅
+│   ├── services/
+│   │   └── api.ts               # API 클라이언트
+│   └── types/
+│       └── api.ts               # 타입 정의
+├── index.html
+├── package.json
+└── vite.config.ts
+```
+
+## 기술 스택
+
+- React 18 + TypeScript
+- Vite
+- MediaPipe Face Mesh (시선 추적)
+- Axios (API 통신)
