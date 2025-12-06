@@ -1,5 +1,6 @@
 services:
   backend:
+    image: hothng/esc-backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -10,11 +11,15 @@ services:
       - ./backend/data:/app/data
     environment:
       - PYTHONUNBUFFERED=1
+      - OLLAMA_HOST=host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
     networks:
       - esc-network
 
   frontend:
+    image: hothng/esc-frontend:latest
     build:
       context: ./frontend
       dockerfile: Dockerfile

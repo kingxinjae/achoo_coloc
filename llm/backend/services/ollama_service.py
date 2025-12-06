@@ -1,9 +1,13 @@
 import ollama
+import os
 from typing import List
 import logging
 
 
 logger = logging.getLogger(__name__)
+
+# 환경변수에서 Ollama 호스트 읽기 (도커용)
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "localhost:11434")
 
 
 class OllamaService:
@@ -12,7 +16,7 @@ class OllamaService:
     선택된 단어들을 자연스러운 한국어 문장으로 변환합니다.
     """
     
-    def __init__(self, base_url: str = "http://localhost:11434", model: str = "gemma2:2b"):
+    def __init__(self, base_url: str = f"http://{OLLAMA_HOST}", model: str = "gemma2:2b"):
         """
         Ollama 서비스 초기화
         
