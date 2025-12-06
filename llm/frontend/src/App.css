@@ -5,9 +5,9 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #1a1a1a;
-  color: #ffffff;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #FFFEF5 0%, #F0FFFE 100%);
+  color: var(--text-dark, #495057);
   min-height: 100vh;
   overflow: hidden;
 }
@@ -18,18 +18,19 @@ body {
   position: relative;
 }
 
-/* 글로벌 카메라 미리보기 (우측 상단 - 모든 화면에서 공유) */
+/* 글로벌 카메라 미리보기 (우측 상단) - 2배 크기 */
 .global-video-container {
   position: fixed;
-  top: 20px;
-  right: 20px;
-  width: 200px;
-  height: 150px;
-  border-radius: 12px;
+  top: 16px;
+  right: 16px;
+  width: 320px;
+  height: 240px;
+  border-radius: 16px;
   overflow: hidden;
   z-index: 9999;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  opacity: 0.8;
+  border: 3px solid var(--teal, #4ECDC4);
+  box-shadow: 0 4px 20px rgba(78, 205, 196, 0.2);
+  background: white;
 }
 
 .global-video-container video {

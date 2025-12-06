@@ -5,48 +5,58 @@ import { CalibrationScreen } from './components/CalibrationScreen';
 import { WordSelectionScreen } from './components/WordSelectionScreen';
 import { 
   getInitialWords, 
-  recommendWords, 
+  recommendWords,
   recommendDiverseWords,
   generateSentence, 
-  textToSpeech,
-  playAudioBlob 
+  textToSpeech
 } from './services/api';
 import './App.css';
 
 type AppPhase = 'start' | 'calibration' | 'selection';
 
-// 경계 히스토리 타입
-interface BoundaryHistory {
-  left: string[] | null;  // 왼쪽 경계 넘어갔을 때 추천된 단어
-  right: string[] | null; // 오른쪽 경계 넘어갔을 때 추천된 단어
-}
-
 function App() {
   const [phase, setPhase] = useState<AppPhase>('start');
-  const [words, setWords] = useState<string[]>(['로딩중...', '로딩중...', '로딩중...', '로딩중...']);
   const [selectedWords, setSelectedWords] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState('초기화 중...');
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [speakingSentence, setSpeakingSentence] = useState('');
   
-  // 경계 히스토리 관리
-  const boundaryHistoryRef = useRef<BoundaryHistory>({ left: null, right: null });
+  // 페이지 스택 관리
+  const [pageStack, setPageStack] = useState<string[][]>([['로딩중...', '로딩중...', '로딩중...', '로딩중...']]);
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
+  
+  // 현재 기준 단어 (확장 시 이 단어 기반 추천)
+  const baseWordRef = useRef<string | null>(null);
   const lastSectionRef = useRef<number>(0);
   const allSelectedWordsRef = useRef<Set<string>>(new Set());
+  
+  // 경계 쿨다운 (연속 트리거 방지)
+  const boundaryCooldownRef = useRef<boolean>(false);
 
   const eyeTracking = useEyeTracking();
+  
+  // 현재 페이지 단어
+  const words = pageStack[currentPageIndex] || ['로딩중...', '로딩중...', '로딩중...', '로딩중...'];
+  // 이전 페이지 단어 (위에 표시)
+  const prevPageWords = currentPageIndex > 0 ? pageStack[currentPageIndex - 1] : null;
+  // 다음 페이지 단어 (아래에 표시)
+  const nextPageWords = currentPageIndex < pageStack.length - 1 ? pageStack[currentPageIndex + 1] : null;
 
   // 초기 단어 로드
   const loadInitialWords = useCallback(async () => {
     try {
       setIsLoading(true);
       const initialWords = await getInitialWords();
-      setWords(initialWords);
+      // 페이지 스택 초기화
+      setPageStack([initialWords]);
+      setCurrentPageIndex(0);
+      baseWordRef.current = null;
       setStatusMessage('시선 추적 활성화');
-      // 경계 히스토리 초기화
-      boundaryHistoryRef.current = { left: null, right: null };
     } catch (err) {
       console.error('초기 단어 로드 실패:', err);
-      setWords(['안녕', '오늘', '날씨', '좋다']);
+      setPageStack([['안녕', '오늘', '날씨', '좋다']]);
+      setCurrentPageIndex(0);
       setStatusMessage('기본 단어 사용');
     } finally {
       setIsLoading(false);
@@ -71,12 +81,13 @@ function App() {
       
       setStatusMessage(`"${word}" 선택됨`);
 
-      // 새로운 추천 단어 로드
+      // 새로운 추천 단어 로드 (선택한 단어 기반)
       const recommendations = await recommendWords(word, newSelectedWords);
-      setWords(recommendations);
       
-      // 경계 히스토리 초기화 (새 단어 선택 시)
-      boundaryHistoryRef.current = { left: null, right: null };
+      // 페이지 스택 완전 리셋 - 새로운 1페이지부터 시작
+      setPageStack([recommendations]);
+      setCurrentPageIndex(0);
+      baseWordRef.current = word; // 확장 시 이 단어 기반 추천
       
     } catch (err) {
       console.error('단어 추천 실패:', err);
@@ -86,64 +97,74 @@ function App() {
     }
   }, [words, selectedWords, isLoading]);
 
-  // 경계 넘어갈 때 처리
-  const handleBoundaryCross = useCallback(async (direction: 'left' | 'right') => {
-    if (isLoading) return;
-
-    const history = boundaryHistoryRef.current;
+  // 왼쪽 경계 처리 (이전 페이지로)
+  const handleLeftBoundary = useCallback(() => {
+    if (boundaryCooldownRef.current || isLoading) return;
+    if (currentPageIndex <= 0) return; // 1페이지면 무시
     
-    // 이미 해당 방향으로 넘어간 적 있으면 저장된 단어 사용
-    if (direction === 'left' && history.left) {
-      setWords(history.left);
-      setStatusMessage('이전 추천 단어 복원');
-      return;
-    }
-    if (direction === 'right' && history.right) {
-      setWords(history.right);
-      setStatusMessage('이전 추천 단어 복원');
+    boundaryCooldownRef.current = true;
+    setTimeout(() => { boundaryCooldownRef.current = false; }, 500);
+    
+    setCurrentPageIndex(prev => prev - 1);
+    setStatusMessage(`${currentPageIndex}페이지로 이동`);
+  }, [currentPageIndex, isLoading]);
+
+  // 오른쪽 경계 처리 (다음 페이지로)
+  const handleRightBoundary = useCallback(async () => {
+    if (boundaryCooldownRef.current || isLoading) return;
+    
+    boundaryCooldownRef.current = true;
+    setTimeout(() => { boundaryCooldownRef.current = false; }, 500);
+    
+    // 이미 다음 페이지가 있으면 그냥 이동
+    if (currentPageIndex < pageStack.length - 1) {
+      setCurrentPageIndex(prev => prev + 1);
+      setStatusMessage(`${currentPageIndex + 2}페이지로 이동`);
       return;
     }
 
-    // 새로운 경계 넘어감 - 다양한 단어 추천
+    // 새 페이지 생성 필요
     try {
       setIsLoading(true);
       const excludeWords = Array.from(allSelectedWordsRef.current);
-      const diverseWords = await recommendDiverseWords(selectedWords, excludeWords);
+      // 기준 단어가 있으면 그 단어 기반, 없으면 전체 선택 단어 기반
+      const baseWord = baseWordRef.current;
+      const diverseWords = await recommendDiverseWords(
+        baseWord ? [baseWord] : selectedWords, 
+        excludeWords
+      );
       
-      // 히스토리에 저장
-      if (direction === 'left') {
-        boundaryHistoryRef.current.left = diverseWords;
-      } else {
-        boundaryHistoryRef.current.right = diverseWords;
-      }
-      
-      setWords(diverseWords);
-      setStatusMessage('새로운 단어 추천');
+      // 새 페이지 추가
+      setPageStack(prev => [...prev, diverseWords]);
+      setCurrentPageIndex(prev => prev + 1);
+      setStatusMessage(`${currentPageIndex + 2}페이지 생성`);
     } catch (err) {
       console.error('다양한 단어 추천 실패:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [selectedWords, isLoading]);
+  }, [currentPageIndex, pageStack.length, selectedWords, isLoading]);
 
   // 시선 영역 변화 감지 (경계 체크)
   useEffect(() => {
     if (phase !== 'selection' || !eyeTracking.isTracking) return;
+    if (!eyeTracking.gazePoint) return;
 
-    const currentSection = eyeTracking.currentSection;
-    const lastSection = lastSectionRef.current;
+    const gazeX = eyeTracking.gazePoint.x;
+    const screenWidth = window.innerWidth;
+    const boundaryThreshold = 100; // 경계 감지 범위
 
-    // 왼쪽 경계 (영역 1에서 더 왼쪽으로)
-    if (lastSection === 1 && eyeTracking.gazePoint && eyeTracking.gazePoint.x < 50) {
-      handleBoundaryCross('left');
+    // 왼쪽 경계 (화면 왼쪽 100px 이내)
+    if (gazeX < boundaryThreshold) {
+      handleLeftBoundary();
     }
-    // 오른쪽 경계 (영역 4에서 더 오른쪽으로)
-    else if (lastSection === 4 && eyeTracking.gazePoint && eyeTracking.gazePoint.x > window.innerWidth - 50) {
-      handleBoundaryCross('right');
+    // 오른쪽 경계 (화면 오른쪽 100px 이내)
+    else if (gazeX > screenWidth - boundaryThreshold) {
+      handleRightBoundary();
     }
 
-    lastSectionRef.current = currentSection;
-  }, [eyeTracking.currentSection, eyeTracking.gazePoint, eyeTracking.isTracking, phase, handleBoundaryCross]);
+    lastSectionRef.current = eyeTracking.currentSection;
+  }, [eyeTracking.gazePoint, eyeTracking.currentSection, eyeTracking.isTracking, phase, handleLeftBoundary, handleRightBoundary]);
 
   // 문장 생성 처리
   const handleGenerateSentence = useCallback(async () => {
@@ -161,14 +182,25 @@ function App() {
       try {
         setStatusMessage('음성 생성 중...');
         const audioBlob = await textToSpeech(sentence);
-        playAudioBlob(audioBlob);
+        setSpeakingSentence(sentence);
+        setIsSpeaking(true);
+        
+        // 오디오 재생 및 종료 감지
+        const audio = new Audio(URL.createObjectURL(audioBlob));
+        audio.onended = () => {
+          setIsSpeaking(false);
+          setSpeakingSentence('');
+        };
+        audio.play();
       } catch (ttsErr) {
         console.error('TTS 오류:', ttsErr);
+        setIsSpeaking(false);
       }
 
       // 초기화
       setSelectedWords([]);
       allSelectedWordsRef.current.clear();
+      baseWordRef.current = null;
       await loadInitialWords();
 
     } catch (err) {
@@ -252,6 +284,12 @@ function App() {
           isLoading={isLoading}
           statusMessage={statusMessage}
           onGenerateSentence={handleGenerateSentence}
+          prevPageWords={prevPageWords}
+          nextPageWords={nextPageWords}
+          currentPage={currentPageIndex + 1}
+          totalPages={pageStack.length}
+          isSpeaking={isSpeaking}
+          speakingSentence={speakingSentence}
         />
       )}
 

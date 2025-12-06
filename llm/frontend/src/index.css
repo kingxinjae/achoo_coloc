@@ -1,13 +1,23 @@
 :root {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  /* 메인 컬러 팔레트 */
+  --yellow: #FFE066;
+  --orange: #FF9F43;
+  --lime: #A8E063;
+  --teal: #4ECDC4;
+  --white: #FFFFFF;
+  --light-gray: #F8F9FA;
+  --soft-gray: #E9ECEF;
+  --text-dark: #495057;
+  --text-light: #868E96;
+
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 
+    'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light;
-  color: #213547;
-  background-color: #ffffff;
+  color: var(--text-dark);
+  background-color: var(--white);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

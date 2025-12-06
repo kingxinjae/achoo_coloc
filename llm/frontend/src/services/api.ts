@@ -11,7 +11,8 @@ import type {
 } from '../types/api';
 import { ErrorType } from '../types/api';
 
-const API_BASE_URL = 'http://localhost:8000';
+// 개발환경: localhost:8000, 프로덕션(도커): 상대경로 (nginx 프록시)
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,

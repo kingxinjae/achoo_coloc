@@ -10,13 +10,20 @@ interface WordSelectionScreenProps {
   isLoading: boolean;
   statusMessage: string;
   onGenerateSentence: () => void;
+  prevPageWords: string[] | null;
+  nextPageWords: string[] | null;
+  currentPage: number;
+  totalPages: number;
+  isSpeaking?: boolean;
+  speakingSentence?: string;
 }
 
+// 밝은 테마 - 각 섹션 파스텔 톤
 const SECTION_COLORS = [
-  'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-  'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-  'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-  'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+  'rgba(255, 254, 245, 0.8)',
+  'rgba(255, 252, 240, 0.8)',
+  'rgba(245, 255, 250, 0.8)',
+  'rgba(240, 255, 254, 0.8)',
 ];
 
 export function WordSelectionScreen({
@@ -27,6 +34,12 @@ export function WordSelectionScreen({
   isLoading,
   statusMessage,
   onGenerateSentence,
+  prevPageWords,
+  nextPageWords,
+  currentPage,
+  totalPages,
+  isSpeaking = false,
+  speakingSentence = '',
 }: WordSelectionScreenProps) {
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -46,8 +59,17 @@ export function WordSelectionScreen({
             className={`word-section ${currentSection === index + 1 ? 'highlighted' : ''}`}
             style={{ background: SECTION_COLORS[index] }}
           >
-            <span className="section-number">{index + 1}</span>
-            <span className="word-text">{word || '로딩중...'}</span>
+            {/* 이전 페이지 단어 (단어 바로 위) */}
+            {prevPageWords && (
+              <span className="preview-word prev">{prevPageWords[index]}</span>
+            )}
+            
+            <span className="word-text">{word || '...'}</span>
+            
+            {/* 다음 페이지 단어 (단어 바로 아래) */}
+            {nextPageWords && (
+              <span className="preview-word next">{nextPageWords[index]}</span>
+            )}
           </div>
         ))}
       </div>
@@ -62,6 +84,10 @@ export function WordSelectionScreen({
 
       {/* 상태 패널 */}
       <div className="status-panel">
+        <div className="status-item">
+          <span className="status-label">페이지:</span>
+          <span className="status-value">{currentPage} / {totalPages}</span>
+        </div>
         <div className="status-item">
           <span className="status-label">상태:</span>
           <span className="status-value">{statusMessage}</span>
@@ -111,6 +137,25 @@ export function WordSelectionScreen({
         <div className="loading-overlay">
           <div className="loading-spinner" />
           <div className="loading-text">처리 중...</div>
+        </div>
+      )}
+
+      {/* 말하는 캐릭터 */}
+      {isSpeaking && (
+        <div className="speaking-character">
+          <div className="speech-bubble">
+            {speakingSentence}
+          </div>
+          <div className="character-body">
+            <div className="character-eye left"></div>
+            <div className="character-eye right"></div>
+            <div className="character-mouth"></div>
+            <div className="sound-waves">
+              <div className="sound-wave"></div>
+              <div className="sound-wave"></div>
+              <div className="sound-wave"></div>
+            </div>
+          </div>
         </div>
       )}
     </div>

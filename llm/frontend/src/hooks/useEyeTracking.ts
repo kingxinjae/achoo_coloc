@@ -139,16 +139,18 @@ export function useEyeTracking(): UseEyeTrackingReturn {
     const leftEyeBounds = getEyeBounds(landmarks, LEFT_EYE_INDICES);
     const rightEyeBounds = getEyeBounds(landmarks, RIGHT_EYE_INDICES);
 
+    // X축만 계산 (좌우 움직임만 추적)
     const leftGazeX = (leftIrisCenter.x - leftEyeBounds.centerX) / leftEyeBounds.width;
     const rightGazeX = (rightIrisCenter.x - rightEyeBounds.centerX) / rightEyeBounds.width;
     const avgGazeX = (leftGazeX + rightGazeX) / 2;
 
     const screenWidth = window.innerWidth;
-    const x = screenWidth * (0.5 - avgGazeX * 8);
+    // 감도 조절 (8 → 6으로 낮춤)
+    const x = screenWidth * (0.5 - avgGazeX * 6);
 
     return {
       x: Math.max(0, Math.min(screenWidth, x)),
-      y: window.innerHeight / 2
+      y: window.innerHeight / 2  // Y축 고정 (좌우만 추적)
     };
   }, [getIrisCenter, getEyeBounds]);
 
@@ -247,12 +249,28 @@ export function useEyeTracking(): UseEyeTrackingReturn {
           const gazePoint = calculateGaze(landmarks);
           if (gazePoint) {
             gazeHistoryRef.current.push(gazePoint);
-            if (gazeHistoryRef.current.length > 10) {
+            // 히스토리 크기 증가 (10 → 20) - 더 부드러운 움직임
+            if (gazeHistoryRef.current.length > 20) {
               gazeHistoryRef.current.shift();
             }
-            const avgX = gazeHistoryRef.current.reduce((sum, p) => sum + p.x, 0) / gazeHistoryRef.current.length;
-            const smoothedGaze = { x: avgX, y: window.innerHeight / 2 };
-            const section = getScreenSection(avgX);
+            
+            // 가중 평균 적용 (최근 값에 더 높은 가중치)
+            let weightedSum = 0;
+            let weightSum = 0;
+            gazeHistoryRef.current.forEach((p, i) => {
+              const weight = i + 1; // 최근 값일수록 높은 가중치
+              weightedSum += p.x * weight;
+              weightSum += weight;
+            });
+            const avgX = weightedSum / weightSum;
+            
+            // 이전 위치와 보간 (lerp) - 더 느린 움직임
+            const prevX = prev.gazePoint?.x ?? avgX;
+            const smoothFactor = 0.15; // 낮을수록 더 느림 (0.3 → 0.15)
+            const smoothedX = prevX + (avgX - prevX) * smoothFactor;
+            
+            const smoothedGaze = { x: smoothedX, y: window.innerHeight / 2 };
+            const section = getScreenSection(smoothedX);
             
             return { ...prev, gazePoint: smoothedGaze, currentSection: section };
           }

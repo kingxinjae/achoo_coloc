@@ -8,64 +8,266 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(135deg, #FFFEF5 0%, #F0FFFE 50%, #FFF5F0 100%);
   z-index: 1000;
+  overflow: hidden;
 }
 
-.start-title {
-  font-size: 3rem;
-  font-weight: 700;
-  margin-bottom: 20px;
-  background: linear-gradient(90deg, #667eea, #764ba2);
+/* 통통 튀는 배경 도형들 */
+.floating-shapes {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.shape {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.6;
+}
+
+.shape-1 {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #FFE066, #FF9F43);
+  top: 10%;
+  left: 10%;
+  animation: bounce1 3s ease-in-out infinite;
+}
+
+.shape-2 {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #4ECDC4, #A8E063);
+  top: 20%;
+  right: 15%;
+  animation: bounce2 2.5s ease-in-out infinite;
+}
+
+.shape-3 {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, #A8E063, #FFE066);
+  bottom: 20%;
+  left: 8%;
+  animation: bounce3 3.5s ease-in-out infinite;
+}
+
+.shape-4 {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #FF9F43, #4ECDC4);
+  bottom: 15%;
+  right: 10%;
+  animation: bounce1 2.8s ease-in-out infinite;
+}
+
+.shape-5 {
+  width: 40px;
+  height: 40px;
+  background: #FFE066;
+  top: 50%;
+  left: 5%;
+  animation: bounce2 2.2s ease-in-out infinite;
+}
+
+.shape-6 {
+  width: 70px;
+  height: 70px;
+  background: #4ECDC4;
+  top: 60%;
+  right: 5%;
+  animation: bounce3 3s ease-in-out infinite;
+}
+
+.shape-7 {
+  width: 35px;
+  height: 35px;
+  background: #A8E063;
+  top: 8%;
+  left: 50%;
+  animation: bounce1 2.6s ease-in-out infinite;
+}
+
+.shape-8 {
+  width: 55px;
+  height: 55px;
+  background: linear-gradient(135deg, #FFE066, #4ECDC4);
+  bottom: 8%;
+  left: 40%;
+  animation: bounce2 3.2s ease-in-out infinite;
+}
+
+/* 사각형 도형 */
+.shape-9 {
+  width: 45px;
+  height: 45px;
+  background: #FF9F43;
+  border-radius: 12px;
+  top: 35%;
+  right: 8%;
+  animation: bounce3 2.4s ease-in-out infinite, rotate 8s linear infinite;
+}
+
+.shape-10 {
+  width: 65px;
+  height: 65px;
+  background: linear-gradient(135deg, #4ECDC4, #FFE066);
+  border-radius: 16px;
+  bottom: 35%;
+  left: 15%;
+  animation: bounce1 2.9s ease-in-out infinite, rotate 10s linear infinite reverse;
+}
+
+@keyframes bounce1 {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-25px) scale(1.1); }
+}
+
+@keyframes bounce2 {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-35px) scale(0.9); }
+}
+
+@keyframes bounce3 {
+  0%, 100% { transform: translateY(0) translateX(0) scale(1); }
+  50% { transform: translateY(-20px) translateX(10px) scale(1.05); }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.logo-text {
+  font-size: 5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #FF9F43 0%, #FFE066 50%, #4ECDC4 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  letter-spacing: 8px;
+  animation: logoFloat 4s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.logo-subtitle {
+  font-size: 1rem;
+  color: #4ECDC4;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-top: 8px;
+  font-weight: 500;
 }
 
 .start-subtitle {
-  font-size: 1.2rem;
-  color: #888;
-  margin-bottom: 40px;
+  font-size: 1.1rem;
+  color: #868E96;
+  margin-bottom: 50px;
   text-align: center;
+  position: relative;
+  z-index: 1;
 }
 
 .start-instructions {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  margin-bottom: 40px;
+  gap: 16px;
+  margin-bottom: 50px;
+  position: relative;
+  z-index: 1;
 }
 
 .instruction-item {
   display: flex;
   align-items: center;
-  gap: 15px;
-  color: #ccc;
-  font-size: 1.1rem;
+  gap: 16px;
+  color: #495057;
+  font-size: 1rem;
 }
 
-.instruction-icon {
-  font-size: 1.5rem;
+.instruction-number {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #FFE066, #FF9F43);
+  color: white;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(255, 159, 67, 0.3);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.instruction-item:nth-child(2) .instruction-number {
+  background: linear-gradient(135deg, #A8E063, #4ECDC4);
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+  animation-delay: 0.3s;
+}
+
+.instruction-item:nth-child(3) .instruction-number {
+  background: linear-gradient(135deg, #4ECDC4, #FFE066);
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+  animation-delay: 0.6s;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 .start-btn {
-  padding: 16px 48px;
-  font-size: 18px;
-  font-weight: 600;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 18px 64px;
+  font-size: 17px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #FF9F43 0%, #FFE066 100%);
   color: white;
   border: none;
-  border-radius: 12px;
+  border-radius: 50px;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 24px rgba(255, 159, 67, 0.35);
+  position: relative;
+  z-index: 1;
+  animation: btnBounce 2s ease-in-out infinite;
+}
+
+@keyframes btnBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
 .start-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 10px 32px rgba(255, 159, 67, 0.5);
+  animation: none;
+}
+
+.start-btn:active:not(:disabled) {
+  transform: translateY(-1px) scale(1.02);
 }
 
 .start-btn:disabled {
-  opacity: 0.7;
+  opacity: 0.5;
   cursor: not-allowed;
+  animation: none;
 }
