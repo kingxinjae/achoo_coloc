@@ -1,0 +1,28 @@
+ESC (Eye Speaker Console)
+Copyright 2024
+
+This product includes software developed by third parties.
+
+================================================================================
+MediaPipe
+Copyright 2019-2024 The MediaPipe Authors
+Licensed under the Apache License, Version 2.0
+https://github.com/google/mediapipe
+
+================================================================================
+TensorFlow.js
+Copyright 2018-2024 The TensorFlow Authors
+Licensed under the Apache License, Version 2.0
+https://github.com/tensorflow/tfjs
+
+================================================================================
+Docker
+Copyright 2013-2024 Docker, Inc.
+Licensed under the Apache License, Version 2.0
+https://github.com/docker
+
+================================================================================
+Sentence Transformers
+Copyright 2019-2024 UKP Lab, Technische Universität Darmstadt
+Licensed under the Apache License, Version 2.0
+https://github.com/UKPLab/sentence-transformers
